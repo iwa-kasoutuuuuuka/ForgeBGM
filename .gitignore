@@ -1,0 +1,21 @@
+# .gitignore for ForgeBGM WPF Project
+
+# Build artifacts
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+*.csproj.user
+*.publish.xml
+
+# Operating System
+Thumbs.db
+ehthumbs.db
+Desktop.ini
