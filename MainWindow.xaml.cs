@@ -33,19 +33,19 @@ namespace ForgeBGM
             if (string.IsNullOrEmpty(text)) return;
 
             GenerateBtn.IsEnabled = false;
-            GenerateBtn.Content = _isEnglish ? "Processing..." : "生成中...";
+            GenerateBtn.Content = _isEnglish ? "Processing..." : "プロデュース中...";
 
             try
             {
                 var model = (ModelType)ModelSelector.SelectedIndex;
                 var result = await ForgeEngine.GenerateAsync(text, model);
-                _history.Insert(0, result); // 履歴の先頭に追加
+                _history.Insert(0, result);
                 UpdateUI(result);
             }
             finally
             {
                 GenerateBtn.IsEnabled = true;
-                GenerateBtn.Content = _isEnglish ? "Generate Optimized Prompt" : "最適化プロンプトを生成";
+                GenerateBtn.Content = _isEnglish ? "Generate Total Produce" : "トータルプロデュース生成";
             }
         }
 
@@ -61,15 +61,15 @@ namespace ForgeBGM
                 {
                     case "boss":
                         presetText = "[Preset] BOSS";
-                        prompt = "Epic cinematic orchestral, powerful heroic brass and soaring strings, fast staccato violins, thunderous taiko + cinematic percussion, intense and majestic";
+                        prompt = "Epic cinematic orchestral, powerful heroic brass, intense and majestic";
                         break;
                     case "lofi":
                         presetText = "[Preset] LO-FI";
-                        prompt = "Chill lo-fi hip hop, warm jazzy Rhodes piano, soft vinyl crackle, mellow boom bap drums, relaxing rainy night";
+                        prompt = "Chill lo-fi hip hop, warm jazzy Rhodes piano, relaxing rainy night";
                         break;
                     case "cyber":
                         presetText = "[Preset] CYBERPUNK";
-                        prompt = "Cyberpunk synthwave, fat sawtooth leads, heavy distorted reese bass, retro drum machine, neon city night";
+                        prompt = "Cyberpunk synthwave, fat sawtooth leads, neon city night";
                         break;
                 }
 
@@ -85,6 +85,8 @@ namespace ForgeBGM
         {
             PromptOutput.Text = result.FullPrompt;
             ReportOutput.Text = ForgeEngine.GenerateReport(result, _isEnglish);
+            LyricsOutput.Text = result.Lyrics;
+            ArtOutput.Text = result.ArtPrompt;
             SkillList.ItemsSource = result.ActiveSkills;
         }
 
@@ -94,6 +96,7 @@ namespace ForgeBGM
             {
                 UpdateUI(selected);
                 UserInput.Text = selected.UserInput;
+                ModelSelector.SelectedIndex = (int)selected.TargetModel;
             }
         }
 
@@ -102,7 +105,6 @@ namespace ForgeBGM
             _isEnglish = !_isEnglish;
             UpdateLanguageUI();
             
-            // 現在の出力を再翻訳（レポートのみ）
             if (_history.Count > 0)
             {
                 ReportOutput.Text = ForgeEngine.GenerateReport(_history.First(), _isEnglish);
@@ -119,9 +121,14 @@ namespace ForgeBGM
                 TxtInputSub.Text = "Enter your musical idea here";
                 TxtSkillHeader.Text = "⚡ Active SKILLs";
                 TxtSkillSub.Text = "Skills activated by AI";
-                TxtPromptHeader.Text = "📝 Optimized Prompt (v2.0)";
-                TxtReportHeader.Text = "📊 Generation Report";
-                GenerateBtn.Content = "Generate Optimized Prompt";
+                TxtPromptHeader.Text = "Optimized Prompt (v2.0)";
+                TxtReportHeader.Text = "Generation Report";
+                TxtLyricsHeader.Text = "Lyric Ideas";
+                TxtArtHeader.Text = "Jacket Art Prompt";
+                TabMusic.Header = "🎵 Music";
+                TabLyrics.Header = "✍ Lyrics";
+                TabArt.Header = "🎨 Visual Art";
+                GenerateBtn.Content = "Generate Total Produce";
                 BtnBoss.Content = "Boss Battle";
                 BtnLofi.Content = "Lo-Fi Chill";
                 BtnCyber.Content = "Cyberpunk";
@@ -134,9 +141,14 @@ namespace ForgeBGM
                 TxtInputSub.Text = "楽曲のイメージを入力してください";
                 TxtSkillHeader.Text = "⚡ 発動スキル";
                 TxtSkillSub.Text = "AIが自動的に選択した専門スキル";
-                TxtPromptHeader.Text = "📝 最適化プロンプト (v2.0)";
-                TxtReportHeader.Text = "📊 生成レポート";
-                GenerateBtn.Content = "最適化プロンプトを生成";
+                TxtPromptHeader.Text = "最適化プロンプト (v2.0)";
+                TxtReportHeader.Text = "生成レポート";
+                TxtLyricsHeader.Text = "歌詞アイデア";
+                TxtArtHeader.Text = "ジャケット画像用プロンプト";
+                TabMusic.Header = "🎵 音楽構成";
+                TabLyrics.Header = "✍ 歌詞案";
+                TabArt.Header = "🎨 ビジュアル案";
+                GenerateBtn.Content = "トータルプロデュース生成";
                 BtnBoss.Content = "ボスバトル";
                 BtnLofi.Content = "Lo-Fi 作業用";
                 BtnCyber.Content = "サイバーパンク";
@@ -158,19 +170,16 @@ namespace ForgeBGM
             }
         }
 
-        private void CopyPrompt_Click(object sender, RoutedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(PromptOutput.Text))
-            {
-                Clipboard.SetText(PromptOutput.Text);
-            }
-        }
+        private void CopyPrompt_Click(object sender, RoutedEventArgs e) => SafeCopy(PromptOutput.Text);
+        private void CopyReport_Click(object sender, RoutedEventArgs e) => SafeCopy(ReportOutput.Text);
+        private void CopyLyrics_Click(object sender, RoutedEventArgs e) => SafeCopy(LyricsOutput.Text);
+        private void CopyArt_Click(object sender, RoutedEventArgs e) => SafeCopy(ArtOutput.Text);
 
-        private void CopyReport_Click(object sender, RoutedEventArgs e)
+        private void SafeCopy(string text)
         {
-            if (!string.IsNullOrEmpty(ReportOutput.Text))
+            if (!string.IsNullOrEmpty(text))
             {
-                Clipboard.SetText(ReportOutput.Text);
+                Clipboard.SetText(text);
             }
         }
     }

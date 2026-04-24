@@ -23,6 +23,8 @@ namespace ForgeBGM
     public class PromptResult
     {
         public string FullPrompt { get; set; } = string.Empty;
+        public string Lyrics { get; set; } = string.Empty;
+        public string ArtPrompt { get; set; } = string.Empty;
         public int Bpm { get; set; }
         public string Key { get; set; } = string.Empty;
         public string Structure { get; set; } = string.Empty;
@@ -66,6 +68,23 @@ namespace ForgeBGM
             { "Chill", new[] { "soft vinyl crackle", "mellow boom bap drums", "subtle nature sounds", "ambient lo-fi pads" } },
             { "Cyber", new[] { "retro drum machine", "distorted reese bass", "glitchy textures" } },
             { "Emotional", new[] { "ethereal ambient pads", "distant reverb washes", "subtle clockwork ticking" } }
+        };
+
+        // 歌詞データベース（簡易版）
+        private static readonly Dictionary<string, string[]> LyricsDatabase = new Dictionary<string, string[]>
+        {
+            { "Epic", new[] { "Rise above the ancient thunder", "Echoes of the lost empire", "Light will guide our destiny", "Through the shadows of the past" } },
+            { "Chill", new[] { "Raindrops on the window pane", "Faded coffee and old books", "Walking through the quiet street", "Time slows down in this moment" } },
+            { "Cyber", new[] { "Digital hearts in a silicon cage", "Neon pulse through electric veins", "System failure, we are free", "Data stream in the midnight rain" } },
+            { "Emotional", new[] { "Whispers of a forgotten dream", "Tears like stars in the winter sky", "Holding on to what we lost", "Searching for the light within" } }
+        };
+
+        private static readonly Dictionary<string, string[]> VisualDatabase = new Dictionary<string, string[]>
+        {
+            { "Epic", new[] { "Cinematic wide shot of a glowing mountain peak", "Golden light filtering through ancient ruins", "A lone warrior facing a cosmic storm" } },
+            { "Chill", new[] { "Cozy lo-fi aesthetic room with rainy window", "A quiet cafe in Tokyo at night", "Warm sunset over a peaceful meadow" } },
+            { "Cyber", new[] { "Cyberpunk city alley with vibrant neon signs", "A futuristic android overlooking a holographic city", "Synthwave sunset with grid patterns" } },
+            { "Emotional", new[] { "Minimalist abstract art representing solitude", "A single candle in a vast dark cathedral", "Soft ethereal watercolor of a winter garden" } }
         };
 
         private const string QualityTags = ", high quality, studio master, crystal clear mix, professional mastering, wide dynamic range, rich spatial reverb, detailed soundstage";
@@ -116,7 +135,6 @@ namespace ForgeBGM
 
                 if (model == ModelType.HeartMuLa)
                 {
-                    // HeartMuLa 向けセクション構造
                     structure = "[Intro] → [Verse] → [Chorus] → [Bridge] → [Outro]";
                     fullPrompt = $"[Genre: {genre}], [Mood: {mood}], [Key: {key}], [BPM: {bpm}]\n" +
                                  $"[Intro]: Atmospheric {subInst} build-up\n" +
@@ -127,20 +145,26 @@ namespace ForgeBGM
                 }
                 else if (model == ModelType.ACEStep)
                 {
-                    // ACE-Step 向け高速・一貫性重視
                     structure = "Compact linear progression (loopable)";
                     fullPrompt = $"{genre}, {mainInst}, {subInst}, {mood}, {key}, {bpm} BPM, consistent melody, harmonious rhythm, high temporal coherence{QualityTags}, ACE-Step optimized";
                 }
                 else
                 {
-                    // Standard v2.0
                     structure = "intro → main theme → drop → outro, seamless loopable";
                     fullPrompt = $"{genre}, {mainInst}, {subInst}, {structure}, {mood}, {key}, {bpm} BPM{QualityTags}";
                 }
 
+                // 歌詞生成
+                string lyrics = string.Join("\n", Enumerable.Range(0, 4).Select(_ => GetRandom(LyricsDatabase[styleKey])));
+                
+                // 画像プロンプト生成
+                string artPrompt = $"{GetRandom(VisualDatabase[styleKey])}, extremely detailed, professional photography, 8k, masterpiece, cinematic lighting, moody atmosphere, sharp focus";
+
                 return new PromptResult
                 {
                     FullPrompt = fullPrompt,
+                    Lyrics = lyrics,
+                    ArtPrompt = artPrompt,
                     Bpm = bpm,
                     Key = key,
                     Structure = structure,
@@ -155,7 +179,7 @@ namespace ForgeBGM
 
         public static string GenerateReport(PromptResult result, bool isEnglish = false)
         {
-            string softName = isEnglish ? "ForgeBGM v1.2 (Model Expansion)" : "ForgeBGM v1.2 (モデル拡張版)";
+            string softName = isEnglish ? "ForgeBGM v1.3 (Total Produce)" : "ForgeBGM v1.3 (トータルプロデュース版)";
             string modelName = result.TargetModel.ToString();
             
             return $"[ForgeBGM Generation Report]\n" +

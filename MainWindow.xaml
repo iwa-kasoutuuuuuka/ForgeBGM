@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="ForgeBGM - AI Music Generation Assistant" Height="800" Width="1200"
+        Title="ForgeBGM - AI Music Generation Assistant" Height="850" Width="1250"
         Background="#0A0B10" Foreground="#F8FAFC"
         Icon="Resources/AppIcon.png">
     <Window.Resources>
@@ -59,6 +59,29 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Tab Styles -->
+        <Style TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" BorderBrush="#22FFFFFF" BorderThickness="1,1,1,0" CornerRadius="4,4,0,0" Margin="2,0">
+                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="12,4"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#4F46E5"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="Border" Property="Background" Value="#111218"/>
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="15">
@@ -74,7 +97,7 @@
                 <TextBlock Text="Forge" FontSize="24" FontWeight="ExtraBold" Foreground="White"/>
                 <TextBlock Text="BGM" FontSize="24" FontWeight="ExtraBold" Foreground="#4F46E5"/>
                 <Border Background="#4F46E5" CornerRadius="4" Margin="10,0,0,0" Padding="5,2" VerticalAlignment="Center">
-                    <TextBlock Text="v1.1 Advanced" FontSize="9" Foreground="White"/>
+                    <TextBlock Text="v1.3 Produce" FontSize="9" Foreground="White"/>
                 </Border>
                 <TextBlock Text="● Online" Foreground="#10B981" FontSize="11" VerticalAlignment="Center" Margin="15,0,0,0"/>
             </StackPanel>
@@ -85,7 +108,7 @@
             </StackPanel>
         </DockPanel>
 
-        <!-- Main Content (3 Columns) -->
+        <!-- Main Content -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220"/>
@@ -133,7 +156,7 @@
                             <Button x:Name="BtnCyber" Content="Cyberpunk" Margin="0,0,4,4" Padding="8,4" Click="Preset_Click" Tag="cyber"/>
                         </WrapPanel>
 
-                        <Button x:Name="GenerateBtn" Content="Generate Optimized Prompt" Style="{StaticResource PrimaryButton}" 
+                        <Button x:Name="GenerateBtn" Content="Generate Total Produce" Style="{StaticResource PrimaryButton}" 
                                 Margin="0,10,0,0" Height="40" Click="GenerateBtn_Click"/>
                     </StackPanel>
                 </Border>
@@ -161,36 +184,53 @@
                 </Border>
             </StackPanel>
 
-            <!-- Column 3: Output -->
-            <StackPanel Grid.Column="2">
-                <Border Style="{StaticResource GlassCard}" Padding="15">
-                    <StackPanel>
-                        <DockPanel LastChildFill="False">
-                            <TextBlock x:Name="TxtPromptHeader" Text="📝 Optimized Prompt (v2.0)" Style="{StaticResource HeaderTitle}" DockPanel.Dock="Left"/>
-                            <Button Content="📋" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" 
-                                    DockPanel.Dock="Right" Click="CopyPrompt_Click"/>
-                        </DockPanel>
-                        <TextBox x:Name="PromptOutput" Height="140" IsReadOnly="True" TextWrapping="Wrap" 
-                                 Background="#080808" Foreground="#A5F3FC" BorderBrush="#33FFFFFF" Padding="8" FontFamily="Consolas" FontSize="12"/>
-                    </StackPanel>
-                </Border>
+            <!-- Column 3: Output Tabs -->
+            <Border Grid.Column="2" Style="{StaticResource GlassCard}" Padding="10">
+                <TabControl Background="Transparent" BorderThickness="0">
+                    <!-- Tab 1: Music -->
+                    <TabItem x:Name="TabMusic" Header="🎵 Music">
+                        <StackPanel Margin="0,10,0,0">
+                            <DockPanel LastChildFill="False">
+                                <TextBlock x:Name="TxtPromptHeader" Text="Optimized Prompt (v2.0)" Style="{StaticResource HeaderTitle}" DockPanel.Dock="Left" FontSize="14"/>
+                                <Button Content="📋" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" DockPanel.Dock="Right" Click="CopyPrompt_Click"/>
+                            </DockPanel>
+                            <TextBox x:Name="PromptOutput" Height="140" IsReadOnly="True" TextWrapping="Wrap" Background="#080808" Foreground="#A5F3FC" BorderBrush="#33FFFFFF" Padding="8" FontFamily="Consolas" FontSize="11"/>
+                            
+                            <DockPanel LastChildFill="False" Margin="0,10,0,0">
+                                <TextBlock x:Name="TxtReportHeader" Text="Generation Report" Style="{StaticResource HeaderTitle}" DockPanel.Dock="Left" FontSize="14"/>
+                                <Button Content="📋" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" DockPanel.Dock="Right" Click="CopyReport_Click"/>
+                            </DockPanel>
+                            <TextBox x:Name="ReportOutput" Height="180" IsReadOnly="True" TextWrapping="Wrap" Background="#080808" Foreground="#CBD5E1" BorderBrush="#33FFFFFF" Padding="8" FontFamily="Consolas" FontSize="10"/>
+                        </StackPanel>
+                    </TabItem>
 
-                <Border Style="{StaticResource GlassCard}" Padding="15">
-                    <StackPanel>
-                        <DockPanel LastChildFill="False">
-                            <TextBlock x:Name="TxtReportHeader" Text="📊 Generation Report" Style="{StaticResource HeaderTitle}" DockPanel.Dock="Left"/>
-                            <Button Content="📋" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" 
-                                    DockPanel.Dock="Right" Click="CopyReport_Click"/>
-                        </DockPanel>
-                        <TextBox x:Name="ReportOutput" Height="220" IsReadOnly="True" TextWrapping="Wrap" 
-                                 Background="#080808" Foreground="#CBD5E1" BorderBrush="#33FFFFFF" Padding="8" FontFamily="Consolas" FontSize="10.5"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+                    <!-- Tab 2: Lyrics -->
+                    <TabItem x:Name="TabLyrics" Header="✍ Lyrics">
+                        <StackPanel Margin="0,10,0,0">
+                            <DockPanel LastChildFill="False">
+                                <TextBlock x:Name="TxtLyricsHeader" Text="Lyric Ideas" Style="{StaticResource HeaderTitle}" DockPanel.Dock="Left" FontSize="14"/>
+                                <Button Content="📋" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" DockPanel.Dock="Right" Click="CopyLyrics_Click"/>
+                            </DockPanel>
+                            <TextBox x:Name="LyricsOutput" Height="360" IsReadOnly="True" TextWrapping="Wrap" Background="#080808" Foreground="#E2E8F0" BorderBrush="#33FFFFFF" Padding="15" FontFamily="Inter" FontSize="13" FontStyle="Italic"/>
+                        </StackPanel>
+                    </TabItem>
+
+                    <!-- Tab 3: Visual Art -->
+                    <TabItem x:Name="TabArt" Header="🎨 Visual Art">
+                        <StackPanel Margin="0,10,0,0">
+                            <DockPanel LastChildFill="False">
+                                <TextBlock x:Name="TxtArtHeader" Text="Jacket Art Prompt" Style="{StaticResource HeaderTitle}" DockPanel.Dock="Left" FontSize="14"/>
+                                <Button Content="📋" Background="Transparent" BorderThickness="0" Foreground="#94A3B8" DockPanel.Dock="Right" Click="CopyArt_Click"/>
+                            </DockPanel>
+                            <TextBox x:Name="ArtOutput" Height="360" IsReadOnly="True" TextWrapping="Wrap" Background="#080808" Foreground="#F472B6" BorderBrush="#33FFFFFF" Padding="15" FontFamily="Inter" FontSize="12"/>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+            </Border>
         </Grid>
 
         <!-- Footer -->
-        <TextBlock Grid.Row="2" Text="© 2026 ForgeBGM Advanced System. v1.1 Hybrid Edition." 
+        <TextBlock Grid.Row="2" Text="© 2026 ForgeBGM Total Produce System. v1.3 Professional Edition." 
                    HorizontalAlignment="Center" Foreground="#94A3B8" FontSize="9" Margin="0,10,0,0"/>
     </Grid>
 </Window>
