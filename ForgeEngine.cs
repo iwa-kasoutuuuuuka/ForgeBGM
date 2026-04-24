@@ -5,6 +5,13 @@ using System.Threading.Tasks;
 
 namespace ForgeBGM
 {
+    public enum ModelType
+    {
+        Standard,
+        HeartMuLa,
+        ACEStep
+    }
+
     public class Skill
     {
         public int Id { get; set; }
@@ -22,6 +29,7 @@ namespace ForgeBGM
         public List<Skill> ActiveSkills { get; set; } = new List<Skill>();
         public DateTime Timestamp { get; set; } = DateTime.Now;
         public string UserInput { get; set; } = string.Empty;
+        public ModelType TargetModel { get; set; } = ModelType.Standard;
 
         public override string ToString() => $"[{Timestamp:HH:mm}] {UserInput.Substring(0, Math.Min(20, UserInput.Length))}...";
     }
@@ -42,7 +50,6 @@ namespace ForgeBGM
             new Skill { Id = 8, Name = "Experimental Sound Designer", NameEn = "Sound Designer", Keywords = new[] { "実験的", "独特", "先進的", "experimental", "unique", "texture" } }
         };
 
-        // 楽器データベース
         private static readonly Dictionary<string, string[]> MainInstruments = new Dictionary<string, string[]>
         {
             { "Epic", new[] { "soaring heroic brass", "powerful orchestral strings", "fast staccato violins", "epic pipe organ" } },
@@ -81,14 +88,13 @@ namespace ForgeBGM
             });
         }
 
-        public static async Task<PromptResult> GenerateAsync(string text)
+        public static async Task<PromptResult> GenerateAsync(string text, ModelType model = ModelType.Standard)
         {
             var activeSkills = await SelectSkillsAsync(text);
             
             return await Task.Run(() =>
             {
-                // 動的楽器選択ロジック
-                string styleKey = "Chill"; // デフォルト
+                string styleKey = "Chill";
                 if (activeSkills.Any(s => s.Id == 1 || s.Id == 6)) styleKey = "Epic";
                 else if (activeSkills.Any(s => s.Id == 3)) styleKey = "Cyber";
                 else if (activeSkills.Any(s => s.Id == 4)) styleKey = "Emotional";
@@ -101,12 +107,36 @@ namespace ForgeBGM
                                styleKey == "Cyber" ? "Cyberpunk synthwave" : 
                                styleKey == "Chill" ? "Chill lo-fi hip hop" : "Ambient soundscape";
 
-                string structure = "intro → main theme → build-up → powerful drop → calm outro, seamless loopable";
                 string mood = string.IsNullOrWhiteSpace(text) ? "peaceful and atmospheric" : text;
                 string key = styleKey == "Epic" || styleKey == "Cyber" ? "D minor" : "C major";
                 int bpm = styleKey == "Epic" ? 142 : styleKey == "Cyber" ? 128 : 85;
 
-                string fullPrompt = $"{genre}, {mainInst}, {subInst}, {structure}, {mood}, {key}, {bpm} BPM{QualityTags}";
+                string fullPrompt = "";
+                string structure = "";
+
+                if (model == ModelType.HeartMuLa)
+                {
+                    // HeartMuLa 向けセクション構造
+                    structure = "[Intro] → [Verse] → [Chorus] → [Bridge] → [Outro]";
+                    fullPrompt = $"[Genre: {genre}], [Mood: {mood}], [Key: {key}], [BPM: {bpm}]\n" +
+                                 $"[Intro]: Atmospheric {subInst} build-up\n" +
+                                 $"[Verse]: Emotional {mainInst} progression with subtle {subInst}\n" +
+                                 $"[Chorus]: Powerful {mainInst} melody with full {subInst} layer\n" +
+                                 $"[Outro]: Fading {mainInst} with {subInst} echoes" +
+                                 $"{QualityTags}, HeartCodec optimized";
+                }
+                else if (model == ModelType.ACEStep)
+                {
+                    // ACE-Step 向け高速・一貫性重視
+                    structure = "Compact linear progression (loopable)";
+                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {mood}, {key}, {bpm} BPM, consistent melody, harmonious rhythm, high temporal coherence{QualityTags}, ACE-Step optimized";
+                }
+                else
+                {
+                    // Standard v2.0
+                    structure = "intro → main theme → drop → outro, seamless loopable";
+                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {structure}, {mood}, {key}, {bpm} BPM{QualityTags}";
+                }
 
                 return new PromptResult
                 {
@@ -115,7 +145,8 @@ namespace ForgeBGM
                     Key = key,
                     Structure = structure,
                     ActiveSkills = activeSkills,
-                    UserInput = text
+                    UserInput = text,
+                    TargetModel = model
                 };
             });
         }
@@ -124,9 +155,12 @@ namespace ForgeBGM
 
         public static string GenerateReport(PromptResult result, bool isEnglish = false)
         {
-            string softName = isEnglish ? "ForgeBGM v1.1 (Native Advanced)" : "ForgeBGM v1.1 (ネイティブ高機能版)";
+            string softName = isEnglish ? "ForgeBGM v1.2 (Model Expansion)" : "ForgeBGM v1.2 (モデル拡張版)";
+            string modelName = result.TargetModel.ToString();
+            
             return $"[ForgeBGM Generation Report]\n" +
                    $"Software: {softName}\n" +
+                   $"Target Model: {modelName}\n" +
                    $"Date: {result.Timestamp:yyyy-MM-dd HH:mm:ss}\n" +
                    $"Prompt Used: {result.FullPrompt}\n" +
                    $"Selected BPM: {result.Bpm}\n" +

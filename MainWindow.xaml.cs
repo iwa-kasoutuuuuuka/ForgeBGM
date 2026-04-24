@@ -37,7 +37,8 @@ namespace ForgeBGM
 
             try
             {
-                var result = await ForgeEngine.GenerateAsync(text);
+                var model = (ModelType)ModelSelector.SelectedIndex;
+                var result = await ForgeEngine.GenerateAsync(text, model);
                 _history.Insert(0, result); // 履歴の先頭に追加
                 UpdateUI(result);
             }
@@ -73,7 +74,8 @@ namespace ForgeBGM
                 }
 
                 UserInput.Text = presetText;
-                var result = await ForgeEngine.GenerateAsync(prompt);
+                var model = (ModelType)ModelSelector.SelectedIndex;
+                var result = await ForgeEngine.GenerateAsync(prompt, model);
                 _history.Insert(0, result);
                 UpdateUI(result);
             }
@@ -112,6 +114,7 @@ namespace ForgeBGM
             if (_isEnglish)
             {
                 TxtHistoryHeader.Text = "🕒 History";
+                TxtModelLabel.Text = "Target Model: ";
                 TxtInputHeader.Text = "🎹 Input Prompt";
                 TxtInputSub.Text = "Enter your musical idea here";
                 TxtSkillHeader.Text = "⚡ Active SKILLs";
@@ -126,6 +129,7 @@ namespace ForgeBGM
             else
             {
                 TxtHistoryHeader.Text = "🕒 履歴";
+                TxtModelLabel.Text = "ターゲットモデル: ";
                 TxtInputHeader.Text = "🎹 インプット・プロンプト";
                 TxtInputSub.Text = "楽曲のイメージを入力してください";
                 TxtSkillHeader.Text = "⚡ 発動スキル";
