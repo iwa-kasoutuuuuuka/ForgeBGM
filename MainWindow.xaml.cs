@@ -19,6 +19,7 @@ namespace ForgeBGM
             InitializeComponent();
             HistoryList.ItemsSource = _history;
             this.KeyDown += MainWindow_KeyDown;
+            this.Closed += (s, e) => LocalInferenceService.Instance.Dispose(); // リソース解放
             UpdateLanguageUI();
         }
 
@@ -42,6 +43,10 @@ namespace ForgeBGM
                 _history.Insert(0, result);
                 UpdateUI(result);
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
             finally
             {
                 GenerateBtn.IsEnabled = true;
@@ -54,12 +59,16 @@ namespace ForgeBGM
             if (string.IsNullOrEmpty(PromptOutput.Text))
             {
                 await ExecuteGenerationAsync();
+                if (string.IsNullOrEmpty(PromptOutput.Text)) return;
             }
 
             LocalGenBtn.IsEnabled = false;
             TxtStatus.Text = _isEnglish ? "Inference Running..." : "推論実行中...";
+            GenProgress.Value = 0;
             
-            var progress = new Progress<double>(v => GenProgress.Value = v);
+            var progress = new Progress<double>(v => {
+                Dispatcher.Invoke(() => GenProgress.Value = v);
+            });
             
             try
             {
@@ -77,9 +86,12 @@ namespace ForgeBGM
             finally
             {
                 LocalGenBtn.IsEnabled = true;
-                await Task.Delay(2000);
-                TxtStatus.Text = _isEnglish ? "Ready to Forge" : "準備完了";
-                GenProgress.Value = 0;
+                await Task.Delay(3000);
+                if (TxtStatus.Text != "Error")
+                {
+                    TxtStatus.Text = _isEnglish ? "Ready to Forge" : "準備完了";
+                    GenProgress.Value = 0;
+                }
             }
         }
 

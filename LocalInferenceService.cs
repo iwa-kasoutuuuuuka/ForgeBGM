@@ -7,12 +7,14 @@ using NAudio.Wave;
 
 namespace ForgeBGM
 {
-    public class LocalInferenceService
+    public class LocalInferenceService : IDisposable
     {
         private static LocalInferenceService? _instance;
         public static LocalInferenceService Instance => _instance ??= new LocalInferenceService();
 
         private InferenceSession? _session;
+        private IWavePlayer? _outputDevice;
+        private AudioFileReader? _audioFile;
         private bool _isLoaded = false;
 
         public bool IsLoaded => _isLoaded;
@@ -27,19 +29,20 @@ namespace ForgeBGM
             {
                 try
                 {
-                    // DirectML (GPU) を有効化してロード
                     var options = new SessionOptions();
-                    options.AppendExecutionProvider_DML(0); // GPU 0 を使用
+                    // DirectML (GPU) を優先的に試行
+                    try { options.AppendExecutionProvider_DML(0); } catch { /* CPU fallback implicitly */ }
                     
                     if (File.Exists(modelPath))
                     {
+                        _session?.Dispose();
                         _session = new InferenceSession(modelPath, options);
                         _isLoaded = true;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Model Load Error: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Model Load Error: {ex.Message}");
                 }
             });
         }
@@ -48,31 +51,33 @@ namespace ForgeBGM
         {
             if (!_isLoaded)
             {
-                // 軽量モデルがロードされていない場合はダミー生成（シミュレーション）
+                // モデル未ロード時はデモ用シミュレーションを実行
                 return await SimulateGeneration(progress);
             }
 
             return await Task.Run(() =>
             {
-                // ここで実際の ONNX 推論を実行
-                // ACE-Step Tiny の入力テンソルを作成し、推論を実行
-                // 現時点ではパスを返す
-                progress.Report(1.0);
-                return "output.wav";
+                try
+                {
+                    // TODO: 実際の ONNX 推論ロジック (ACE-Step Tiny 等)
+                    // 現時点では推論エンジンの疎通確認のみ
+                    progress.Report(1.0);
+                    return "output.wav";
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Inference Failed: {ex.Message}");
+                }
             });
         }
 
         private async Task<string> SimulateGeneration(IProgress<double> progress)
         {
-            // 軽量モデルによる生成をシミュレート（デモ用）
-            for (int i = 0; i <= 100; i += 5)
+            for (int i = 0; i <= 100; i += 10)
             {
                 progress.Report(i / 100.0);
-                await Task.Delay(100);
+                await Task.Delay(150); // 軽量モデルを想定したウェイト
             }
-            
-            // 実際の実装ではここで一時フォルダにダミーのwavを作成するか
-            // 既存のサンプルを返す
             return "Generated_Audio_Placeholder.wav";
         }
 
@@ -80,15 +85,38 @@ namespace ForgeBGM
         {
             try
             {
+                StopAudio(); // 前の再生を停止
+
                 if (File.Exists(filePath))
                 {
-                    var player = new AudioFileReader(filePath);
-                    var outputDevice = new WaveOutEvent();
-                    outputDevice.Init(player);
-                    outputDevice.Play();
+                    _audioFile = new AudioFileReader(filePath);
+                    _outputDevice = new WaveOutEvent();
+                    _outputDevice.Init(_audioFile);
+                    _outputDevice.Play();
+                    
+                    // 再生終了時のクリーンアップ登録
+                    _outputDevice.PlaybackStopped += (s, e) => StopAudio();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Playback Error: {ex.Message}");
+            }
+        }
+
+        public void StopAudio()
+        {
+            _outputDevice?.Stop();
+            _outputDevice?.Dispose();
+            _audioFile?.Dispose();
+            _outputDevice = null;
+            _audioFile = null;
+        }
+
+        public void Dispose()
+        {
+            StopAudio();
+            _session?.Dispose();
         }
     }
 }
