@@ -70,7 +70,6 @@ namespace ForgeBGM
             { "Emotional", new[] { "ethereal ambient pads", "distant reverb washes", "subtle clockwork ticking" } }
         };
 
-        // 歌詞データベース（簡易版）
         private static readonly Dictionary<string, string[]> LyricsDatabase = new Dictionary<string, string[]>
         {
             { "Epic", new[] { "Rise above the ancient thunder", "Echoes of the lost empire", "Light will guide our destiny", "Through the shadows of the past" } },
@@ -91,6 +90,7 @@ namespace ForgeBGM
 
         private static bool FastContains(string source, string value)
         {
+            if (string.IsNullOrEmpty(source)) return false;
             return source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
@@ -98,6 +98,7 @@ namespace ForgeBGM
         {
             return await Task.Run(() =>
             {
+                if (string.IsNullOrEmpty(text)) return new List<Skill>();
                 return Skills.Select(s => new { Skill = s, Score = s.Keywords.Count(kw => FastContains(text, kw)) })
                              .Where(x => x.Score > 0)
                              .OrderByDescending(x => x.Score)
@@ -119,15 +120,22 @@ namespace ForgeBGM
                 else if (activeSkills.Any(s => s.Id == 4)) styleKey = "Emotional";
                 else if (activeSkills.Any(s => s.Id == 7)) styleKey = "Organic";
 
-                string mainInst = GetRandom(MainInstruments.ContainsKey(styleKey) ? MainInstruments[styleKey] : MainInstruments["Chill"]);
-                string subInst = GetRandom(SubInstruments.ContainsKey(styleKey) ? SubInstruments[styleKey] : SubInstruments["Chill"]);
+                // KeyNotFound 対策
+                string GetSafeRandom(Dictionary<string, string[]> dict, string key, string defaultKey = "Chill")
+                {
+                    if (dict.ContainsKey(key)) return GetRandom(dict[key]);
+                    return GetRandom(dict[defaultKey]);
+                }
+
+                string mainInst = GetSafeRandom(MainInstruments, styleKey);
+                string subInst = GetSafeRandom(SubInstruments, styleKey);
                 
                 string genre = styleKey == "Epic" ? "Epic cinematic orchestral" : 
                                styleKey == "Cyber" ? "Cyberpunk synthwave" : 
                                styleKey == "Chill" ? "Chill lo-fi hip hop" : "Ambient soundscape";
 
                 string mood = string.IsNullOrWhiteSpace(text) ? "peaceful and atmospheric" : text;
-                string key = styleKey == "Epic" || styleKey == "Cyber" ? "D minor" : "C major";
+                string keyName = styleKey == "Epic" || styleKey == "Cyber" ? "D minor" : "C major";
                 int bpm = styleKey == "Epic" ? 142 : styleKey == "Cyber" ? 128 : 85;
 
                 string fullPrompt = "";
@@ -136,7 +144,7 @@ namespace ForgeBGM
                 if (model == ModelType.HeartMuLa)
                 {
                     structure = "[Intro] → [Verse] → [Chorus] → [Bridge] → [Outro]";
-                    fullPrompt = $"[Genre: {genre}], [Mood: {mood}], [Key: {key}], [BPM: {bpm}]\n" +
+                    fullPrompt = $"[Genre: {genre}], [Mood: {mood}], [Key: {keyName}], [BPM: {bpm}]\n" +
                                  $"[Intro]: Atmospheric {subInst} build-up\n" +
                                  $"[Verse]: Emotional {mainInst} progression with subtle {subInst}\n" +
                                  $"[Chorus]: Powerful {mainInst} melody with full {subInst} layer\n" +
@@ -146,19 +154,16 @@ namespace ForgeBGM
                 else if (model == ModelType.ACEStep)
                 {
                     structure = "Compact linear progression (loopable)";
-                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {mood}, {key}, {bpm} BPM, consistent melody, harmonious rhythm, high temporal coherence{QualityTags}, ACE-Step optimized";
+                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {mood}, {keyName}, {bpm} BPM, consistent melody, harmonious rhythm, high temporal coherence{QualityTags}, ACE-Step optimized";
                 }
                 else
                 {
                     structure = "intro → main theme → drop → outro, seamless loopable";
-                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {structure}, {mood}, {key}, {bpm} BPM{QualityTags}";
+                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {structure}, {mood}, {keyName}, {bpm} BPM{QualityTags}";
                 }
 
-                // 歌詞生成
-                string lyrics = string.Join("\n", Enumerable.Range(0, 4).Select(_ => GetRandom(LyricsDatabase[styleKey])));
-                
-                // 画像プロンプト生成
-                string artPrompt = $"{GetRandom(VisualDatabase[styleKey])}, extremely detailed, professional photography, 8k, masterpiece, cinematic lighting, moody atmosphere, sharp focus";
+                string lyrics = string.Join("\n", Enumerable.Range(0, 4).Select(_ => GetSafeRandom(LyricsDatabase, styleKey)));
+                string artPrompt = $"{GetSafeRandom(VisualDatabase, styleKey)}, extremely detailed, professional photography, 8k, masterpiece, cinematic lighting, moody atmosphere, sharp focus";
 
                 return new PromptResult
                 {
@@ -166,7 +171,7 @@ namespace ForgeBGM
                     Lyrics = lyrics,
                     ArtPrompt = artPrompt,
                     Bpm = bpm,
-                    Key = key,
+                    Key = keyName,
                     Structure = structure,
                     ActiveSkills = activeSkills,
                     UserInput = text,
@@ -179,7 +184,7 @@ namespace ForgeBGM
 
         public static string GenerateReport(PromptResult result, bool isEnglish = false)
         {
-            string softName = isEnglish ? "ForgeBGM v1.3 (Total Produce)" : "ForgeBGM v1.3 (トータルプロデュース版)";
+            string softName = isEnglish ? "ForgeBGM v2.0 (Total Produce)" : "ForgeBGM v2.0 (トータルプロデュース版)";
             string modelName = result.TargetModel.ToString();
             
             return $"[ForgeBGM Generation Report]\n" +

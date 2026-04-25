@@ -13,13 +13,14 @@ namespace ForgeBGM
     {
         private bool _isEnglish = false;
         private ObservableCollection<PromptResult> _history = new ObservableCollection<PromptResult>();
+        private const int MaxHistoryCount = 50; // 履歴の上限
 
         public MainWindow()
         {
             InitializeComponent();
             HistoryList.ItemsSource = _history;
             this.KeyDown += MainWindow_KeyDown;
-            this.Closed += (s, e) => LocalInferenceService.Instance.Dispose(); // リソース解放
+            this.Closed += (s, e) => LocalInferenceService.Instance.Dispose(); 
             UpdateLanguageUI();
         }
 
@@ -31,7 +32,11 @@ namespace ForgeBGM
         private async Task ExecuteGenerationAsync()
         {
             string text = UserInput.Text.Trim();
-            if (string.IsNullOrEmpty(text)) return;
+            // 入力が空でもプリセット等があるため、完全な拒否はせず、ヒントを表示
+            if (string.IsNullOrEmpty(text))
+            {
+                text = "Ambient soundscape"; 
+            }
 
             GenerateBtn.IsEnabled = false;
             GenerateBtn.Content = _isEnglish ? "Processing..." : "プロデュース中...";
@@ -40,7 +45,14 @@ namespace ForgeBGM
             {
                 var model = (ModelType)ModelSelector.SelectedIndex;
                 var result = await ForgeEngine.GenerateAsync(text, model);
+                
+                // 履歴管理
                 _history.Insert(0, result);
+                if (_history.Count > MaxHistoryCount)
+                {
+                    _history.RemoveAt(_history.Count - 1);
+                }
+
                 UpdateUI(result);
             }
             catch (Exception ex)
@@ -122,7 +134,10 @@ namespace ForgeBGM
                 UserInput.Text = presetText;
                 var model = (ModelType)ModelSelector.SelectedIndex;
                 var result = await ForgeEngine.GenerateAsync(prompt, model);
+                
                 _history.Insert(0, result);
+                if (_history.Count > MaxHistoryCount) _history.RemoveAt(_history.Count - 1);
+
                 UpdateUI(result);
             }
         }
@@ -229,9 +244,16 @@ namespace ForgeBGM
 
         private void SafeCopy(string text)
         {
-            if (!string.IsNullOrEmpty(text))
+            try
             {
-                Clipboard.SetText(text);
+                if (!string.IsNullOrEmpty(text))
+                {
+                    Clipboard.SetText(text);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Clipboard Error: {ex.Message}");
             }
         }
     }
