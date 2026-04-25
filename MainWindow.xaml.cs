@@ -49,6 +49,40 @@ namespace ForgeBGM
             }
         }
 
+        private async void LocalGenBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(PromptOutput.Text))
+            {
+                await ExecuteGenerationAsync();
+            }
+
+            LocalGenBtn.IsEnabled = false;
+            TxtStatus.Text = _isEnglish ? "Inference Running..." : "推論実行中...";
+            
+            var progress = new Progress<double>(v => GenProgress.Value = v);
+            
+            try
+            {
+                string prompt = PromptOutput.Text;
+                string audioPath = await LocalInferenceService.Instance.GenerateAudioAsync(prompt, progress);
+                
+                TxtStatus.Text = _isEnglish ? "Generation Complete! Playing..." : "生成完了！再生中...";
+                LocalInferenceService.Instance.PlayAudio(audioPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Inference Error");
+                TxtStatus.Text = "Error";
+            }
+            finally
+            {
+                LocalGenBtn.IsEnabled = true;
+                await Task.Delay(2000);
+                TxtStatus.Text = _isEnglish ? "Ready to Forge" : "準備完了";
+                GenProgress.Value = 0;
+            }
+        }
+
         private async void Preset_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag != null)
@@ -129,6 +163,9 @@ namespace ForgeBGM
                 TabLyrics.Header = "✍ Lyrics";
                 TabArt.Header = "🎨 Visual Art";
                 GenerateBtn.Content = "Generate Total Produce";
+                LocalGenBtn.Content = "Generate & Play (Local)";
+                TxtLocalEngineHeader.Text = "🤖 Local AI Music Engine";
+                TxtStatus.Text = "Ready to Forge";
                 BtnBoss.Content = "Boss Battle";
                 BtnLofi.Content = "Lo-Fi Chill";
                 BtnCyber.Content = "Cyberpunk";
@@ -149,6 +186,9 @@ namespace ForgeBGM
                 TabLyrics.Header = "✍ 歌詞案";
                 TabArt.Header = "🎨 ビジュアル案";
                 GenerateBtn.Content = "トータルプロデュース生成";
+                LocalGenBtn.Content = "ローカルで音楽生成＆再生";
+                TxtLocalEngineHeader.Text = "🤖 ローカルAI音楽エンジン";
+                TxtStatus.Text = "準備完了";
                 BtnBoss.Content = "ボスバトル";
                 BtnLofi.Content = "Lo-Fi 作業用";
                 BtnCyber.Content = "サイバーパンク";
