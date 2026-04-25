@@ -1,37 +1,32 @@
-# ForgeBGM ソフトウェア仕様書 / Software Specification
+# ForgeBGM ソフトウェア仕様書 / Software Specification (v2.0)
 
 ## 1. 概要 / Overview
-ForgeBGMは、AI音楽生成エンジン（Suno, Udio, Stable Audio等）向けの高品質なプロンプトを構築するための専門アシスタントツールです。独自のSKILLシステムにより、ユーザーの意図を汲み取った最適な音楽構成案を自動生成します。
+ForgeBGMは、AI音楽生成のためのトータルプロデュース・アシスタントです。v2.0では、プロンプト構築に加え、ローカル環境でのAI推論による音楽生成・再生機能を統合しました。
 
-ForgeBGM is a specialized assistant tool designed to construct high-quality prompts for AI music generation engines (such as Suno, Udio, Stable Audio, etc.). Its unique SKILL system automatically generates optimal music structure plans based on user intent.
+ForgeBGM is a total produce assistant for AI music generation. v2.0 integrates prompt construction along with local AI inference for music generation and playback.
 
 ## 2. システム構成 / System Architecture
-*   **プラットフォーム / Platform**: Windows Desktop (Native)
+*   **プラットフォーム / Platform**: Windows 10/11 (Native)
 *   **フレームワーク / Framework**: .NET 10.0 / WPF
-*   **言語 / Language**: C# 12
-*   **UIデザイン / UI Design**: ダークモード / グラスモルフィズム (Dark Mode / Glassmorphism)
+*   **推論エンジン / Inference Engine**: ONNX Runtime (DirectML)
+*   **オーディオ出力 / Audio Output**: NAudio
+*   **デザイン / Design**: ダークモード / グラスモルフィズム (Dark Mode / Glassmorphism)
 
 ## 3. 主要機能 / Core Features
-### 3.1 SKILLシステム (ver 1.0) / SKILL System (ver 1.0)
-以下の8つの専門スキルから最大3つを自動選択します：
-Automatically selects up to 3 specialized skills from the following 8:
-1.  **Cinematic Master**: 壮大な映画・ゲーム音楽 / Epic cinematic & game music
-2.  **LoFi & Chill Architect**: リラックス・作業用BGM / Relaxing & chill BGM
-3.  **Cyberpunk / Synthwave Engineer**: 近未来シンセサウンド / Futuristic synth sounds
-4.  **Emotional Composer**: 繊細な感情表現 / Delicate emotional expression
-5.  **Loop Perfectionist**: シームレスなループ設計 / Seamless loop design
-6.  **High Energy Action Specialist**: 激しいアクション・バトル / Intense action & battle
-7.  **Acoustic & Organic Creator**: 生楽器の温もり / Warmth of organic instruments
-8.  **Experimental Sound Designer**: 実験的・独創的な音響 / Experimental & creative soundscapes
+### 3.1 トータルプロデュース・エンジン / Total Produce Engine
+*   **音楽構成 / Music Structure**: 最適化プロンプト (v2.0) の生成。
+*   **歌詞案 / Lyrics**: ジャンル・ムードに合わせた歌詞の自動生成。
+*   **ビジュアル案 / Visual Art**: ジャケット画像用プロンプトの同時出力。
 
-### 3.2 最適化プロンプト構造 (ver 2.0) / Optimized Prompt Structure (ver 2.0)
-生成されるプロンプトは以下の構造を厳守します：
-The generated prompts strictly adhere to the following structure:
-`[Genre/Style], [Main Instruments], [Sub Instruments], [Song Structure], [Mood], [Key], [Tempo], [Quality Tags]`
+### 3.2 ローカルAI推論 (v2.0) / Local AI Inference (v2.0)
+*   **ACE-Step / HeartMuLa 最適化**: 最新のオープンソースモデルに対応。
+*   **オンデバイス生成**: GPU (DirectML) を活用した、外部サーバー不要の音楽生成基盤。
+*   **内蔵プレイヤー**: 生成された `.wav` ファイルを即座に再生。
 
-## 4. 技術的制約 / Technical Constraints
-*   **ボーカル排除 / No Vocals**: インストゥルメンタル曲に特化し、歌声を排除します。 / Specialized for instrumental tracks; excludes vocals.
-*   **高品質タグ / Quality Tags**: スタジオマスター級の品質を保証するタグを自動付与します。 / Automatically appends tags to ensure studio-master quality.
+## 4. 技術詳細 / Technical Details
+*   **ONNX Runtime**: Python不要のネイティブAI推論を実現。 / Native AI inference without Python.
+*   **DirectML**: Windows標準のGPU加速を利用。 / Utilizes standard Windows GPU acceleration.
+*   **I18n**: 日本語・英語の完全切り替え。 / Full toggle between JP and EN.
 
 ---
-© 2026 ForgeBGM Project.
+© 2026 ForgeBGM Project. v2.0 Local AI HyperSpeed Edition.

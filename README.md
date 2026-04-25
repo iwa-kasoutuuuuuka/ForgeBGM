@@ -1,40 +1,36 @@
-# ForgeBGM - AI Music Generation Assistant
+# ForgeBGM - Local AI Music Workstation (v2.0)
 
 ![ForgeBGM App Icon](Resources/AppIcon.png)
 
-## 🎼 概要 / Overview
-**ForgeBGM** は、AI音楽生成エンジン（Suno, Udio, Stable Audio等）向けの高品質なプロンプトを構築するための専門アシスタントツールです。独自のSKILLシステムと最適化プロンプト構造（v2.0）により、ユーザーの意図を正確に反映した音楽構成案を瞬時に生成します。
+## 🎼 究極の音楽制作アシスタント / The Ultimate Music Assistant
+**ForgeBGM v2.0** は、音楽・歌詞・ビジュアルを統合してプロデュースし、あなたのPC上で直接音楽を生成する「ローカルAIワークステーション」です。
 
-**ForgeBGM** is a specialized assistant tool designed to construct high-quality prompts for AI music generation engines. With its unique SKILL system and optimized prompt structure (v2.0), it instantly generates music composition plans that accurately reflect user intent.
+**ForgeBGM v2.0** is a local AI workstation that integrates music, lyrics, and visual production, generating music directly on your PC.
 
-## ✨ 特徴 / Features
-*   **⚡ HyperSpeed Engine**: C# / .NET ネイティブによる爆速レスポンス。 / Ultra-fast response with native C# / .NET.
-*   **🧠 Intelligent SKILL System**: 8つの専門スキルからAIが最適なものを自動選択。 / AI automatically selects the best skills from 8 specialized categories.
-*   **📝 v2.0 Prompt Structure**: 音楽理論に基づいた8つの必須項目を網羅した構造化プロンプト。 / Structured prompts covering 8 essential items based on music theory.
-*   **🕒 History Log**: 過去の生成履歴を保存し、いつでも再呼び出し可能。 / Save generation history for instant recall.
-*   **🌐 Multi-language Support**: 日本語と英語のUI切り替えに対応。 / Supports UI switching between Japanese and English.
-*   **🎨 Premium UI**: ダークモードとグラスモルフィズムを採用した高級感のあるデザイン。 / High-end design with Dark Mode and Glassmorphism.
+## ✨ v2.0 新機能 / New Features
+*   **🤖 Local AI Music Engine**: ONNX Runtime & DirectML により、あなたのGPUで音楽を直接生成・再生。 / Generate and play music directly with your GPU via ONNX Runtime & DirectML.
+*   **✍ Total Produce System**: 音楽構成だけでなく、歌詞案やジャケット画像プロンプトも同時に生成。 / Generates lyrics and jacket art prompts alongside music structure.
+*   **🎹 Model Expansion**: HeartMuLa および ACE-Step モデルへの最適化対応。 / Optimized support for HeartMuLa and ACE-Step models.
+*   **🗂 Tabbed Workspace**: 音楽・歌詞・アートをタブで切り替えて管理。 / Manage music, lyrics, and art in a clean tabbed interface.
 
 ## 🚀 使い方 / How to Use
-1.  `ForgeBGM.exe` を起動します。
-2.  曲のイメージを入力するか、プリセットボタンを選択します。
-3.  `Generate` を押し、最適化されたプロンプトとレポートを取得します。
-4.  コピーボタンでプロンプトをコピーし、お好みのAI音楽生成サービスへ貼り付けてください。
+1.  **Generate Prompt**: イメージを入力し、ターゲットモデルを選択して生成。
+2.  **Generate Audio**: 「Generate & Play (Local)」で、あなたのPC上でAIが作曲を開始します。
+3.  **Produce All**: 歌詞案やビジュアル案をコピーして、作品を完成させましょう。
 
-1. Launch `ForgeBGM.exe`.
-2. Enter your musical idea or select a preset button.
-3. Press `Generate` to get the optimized prompt and report.
-4. Copy the prompt and paste it into your favorite AI music service.
+1.  **Generate Prompt**: Input your idea, select a target model, and generate.
+2.  **Generate Audio**: Use "Generate & Play (Local)" to start AI composing on your PC.
+3.  **Produce All**: Copy lyrics and art prompts to complete your production.
 
-## 🛠 開発環境 / Tech Stack
-*   **Framework**: .NET 10.0 / WPF
-*   **Language**: C# 12
-*   **Architecture**: Standalone Native App (No Python/Browser dependency)
+## 🛠 テクノロジー / Tech Stack
+*   **Core**: .NET 10.0 / WPF / C# 12
+*   **AI Engine**: ONNX Runtime (DirectML) - No Python Required
+*   **Audio**: NAudio Native Integration
 
 ## 📄 ドキュメント / Documentation
-*   [SPECIFICATION.md](SPECIFICATION.md) - 技術仕様 / Technical Specification
-*   [MANUAL.md](MANUAL.md) - 取扱説明書 / Instruction Manual
-*   [CREDITS.md](CREDITS.md) - 外部サービス・ライセンス情報 / Credits & License
+*   [SPECIFICATION.md](SPECIFICATION.md) - 仕様書 / Specification
+*   [MANUAL.md](MANUAL.md) - 取扱説明書 / Manual
+*   [CREDITS.md](CREDITS.md) - ライセンス情報 / Credits
 
 ---
-© 2026 ForgeBGM Project. Built for professional music creators.
+© 2026 ForgeBGM Project. Turn your PC into a music forge.
