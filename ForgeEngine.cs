@@ -5,12 +5,7 @@ using System.Threading.Tasks;
 
 namespace ForgeBGM
 {
-    public enum ModelType
-    {
-        Standard,
-        HeartMuLa,
-        ACEStep
-    }
+    public enum ModelType { Standard, HeartMuLa, ACEStep }
 
     public class Skill
     {
@@ -32,171 +27,71 @@ namespace ForgeBGM
         public DateTime Timestamp { get; set; } = DateTime.Now;
         public string UserInput { get; set; } = string.Empty;
         public ModelType TargetModel { get; set; } = ModelType.Standard;
-
         public override string ToString() => $"[{Timestamp:HH:mm}] {UserInput.Substring(0, Math.Min(20, UserInput.Length))}...";
     }
 
     public class ForgeEngine
     {
         private static readonly Random Rnd = new Random();
-        
-        public static readonly List<Skill> Skills = new List<Skill>
+        private static List<Skill>? _currentSkills;
+        public static List<Skill> CurrentSkills 
+        { 
+            get => _currentSkills ?? DefaultSkills;
+            set => _currentSkills = value;
+        }
+
+        public static readonly List<Skill> DefaultSkills = new List<Skill>
         {
-            new Skill { Id = 1, Name = "Cinematic Master", NameEn = "Cinematic Master", Keywords = new[] { "壮大", "オーケストラ", "映画", "ゲーム", "ドラマチック", "epic", "cinematic", "orchestral" } },
-            new Skill { Id = 2, Name = "LoFi & Chill Architect", NameEn = "LoFi & Chill Architect", Keywords = new[] { "リラックス", "作業", "chill", "lofi", "カフェ", "癒し", "analog", "warm" } },
-            new Skill { Id = 3, Name = "Cyberpunk / Synthwave Engineer", NameEn = "Cyberpunk Engineer", Keywords = new[] { "サイバー", "未来", "シンセ", "電子", "cyberpunk", "synthwave", "neon", "future" } },
-            new Skill { Id = 4, Name = "Emotional Composer", NameEn = "Emotional Composer", Keywords = new[] { "感情", "切ない", "悲しい", "希望", "感動", "emotional", "sad", "hopeful", "piano" } },
-            new Skill { Id = 5, Name = "Loop Perfectionist", NameEn = "Loop Perfectionist", Keywords = new[] { "ループ", "配信", "繰り返し", "loop", "bgm", "seamless" } },
-            new Skill { Id = 6, Name = "High Energy Action Specialist", NameEn = "Action Specialist", Keywords = new[] { "バトル", "戦闘", "激しい", "高速", "action", "battle", "intense", "fast" } },
-            new Skill { Id = 7, Name = "Acoustic & Organic Creator", NameEn = "Acoustic Creator", Keywords = new[] { "生楽器", "ギター", "アコースティック", "自然", "acoustic", "guitar", "organic" } },
-            new Skill { Id = 8, Name = "Experimental Sound Designer", NameEn = "Sound Designer", Keywords = new[] { "実験的", "独特", "先進的", "experimental", "unique", "texture" } }
+            new Skill { Id = 1, Name = "Cinematic Master", NameEn = "Cinematic Master", Keywords = new[] { "壮大", "オーケストラ", "映画", "epic", "cinematic" } },
+            new Skill { Id = 2, Name = "LoFi & Chill Architect", NameEn = "LoFi & Chill Architect", Keywords = new[] { "リラックス", "chill", "lofi" } },
+            new Skill { Id = 3, Name = "Cyberpunk Engineer", NameEn = "Cyberpunk Engineer", Keywords = new[] { "サイバー", "未来", "cyberpunk", "synthwave" } },
+            new Skill { Id = 4, Name = "Emotional Composer", NameEn = "Emotional Composer", Keywords = new[] { "感情", "切ない", "emotional", "piano" } }
         };
 
         private static readonly Dictionary<string, string[]> MainInstruments = new Dictionary<string, string[]>
         {
-            { "Epic", new[] { "soaring heroic brass", "powerful orchestral strings", "fast staccato violins", "epic pipe organ" } },
-            { "Chill", new[] { "warm jazzy Rhodes piano", "mellow acoustic guitar", "soft felt piano arpeggios", "chill electric guitar" } },
-            { "Cyber", new[] { "fat sawtooth leads", "aggressive synth arpeggios", "neon futuristic pads", "heavy FM synth bass" } },
-            { "Emotional", new[] { "emotional solo piano", "delicate cello melody", "expressive violin solo", "soft harp plucks" } },
-            { "Action", new[] { "heavy distorted electric guitar", "fast aggressive synth bass", "staccato brass stabs" } },
-            { "Organic", new[] { "warm acoustic guitar", "earthy percussion", "native flute melodies", "kalimba sparkles" } }
-        };
-
-        private static readonly Dictionary<string, string[]> SubInstruments = new Dictionary<string, string[]>
-        {
-            { "Epic", new[] { "thunderous taiko drums", "cinematic percussion layers", "choir textures" } },
-            { "Chill", new[] { "soft vinyl crackle", "mellow boom bap drums", "subtle nature sounds", "ambient lo-fi pads" } },
-            { "Cyber", new[] { "retro drum machine", "distorted reese bass", "glitchy textures" } },
-            { "Emotional", new[] { "ethereal ambient pads", "distant reverb washes", "subtle clockwork ticking" } }
+            { "Epic", new[] { "heroic brass", "orchestral strings" } },
+            { "Chill", new[] { "jazzy Rhodes", "acoustic guitar" } },
+            { "Cyber", new[] { "sawtooth leads", "neon pads" } },
+            { "Emotional", new[] { "solo piano", "cello melody" } }
         };
 
         private static readonly Dictionary<string, string[]> LyricsDatabase = new Dictionary<string, string[]>
         {
-            { "Epic", new[] { "Rise above the ancient thunder", "Echoes of the lost empire", "Light will guide our destiny", "Through the shadows of the past" } },
-            { "Chill", new[] { "Raindrops on the window pane", "Faded coffee and old books", "Walking through the quiet street", "Time slows down in this moment" } },
-            { "Cyber", new[] { "Digital hearts in a silicon cage", "Neon pulse through electric veins", "System failure, we are free", "Data stream in the midnight rain" } },
-            { "Emotional", new[] { "Whispers of a forgotten dream", "Tears like stars in the winter sky", "Holding on to what we lost", "Searching for the light within" } }
+            { "Epic", new[] { "Rise above the thunder", "Light will guide our destiny" } },
+            { "Chill", new[] { "Raindrops on the window", "Faded coffee and old books" } },
+            { "Cyber", new[] { "Digital hearts", "Neon pulse through veins" } },
+            { "Emotional", new[] { "Whispers of a dream", "Tears like stars" } }
         };
-
-        private static readonly Dictionary<string, string[]> VisualDatabase = new Dictionary<string, string[]>
-        {
-            { "Epic", new[] { "Cinematic wide shot of a glowing mountain peak", "Golden light filtering through ancient ruins", "A lone warrior facing a cosmic storm" } },
-            { "Chill", new[] { "Cozy lo-fi aesthetic room with rainy window", "A quiet cafe in Tokyo at night", "Warm sunset over a peaceful meadow" } },
-            { "Cyber", new[] { "Cyberpunk city alley with vibrant neon signs", "A futuristic android overlooking a holographic city", "Synthwave sunset with grid patterns" } },
-            { "Emotional", new[] { "Minimalist abstract art representing solitude", "A single candle in a vast dark cathedral", "Soft ethereal watercolor of a winter garden" } }
-        };
-
-        private const string QualityTags = ", high quality, studio master, crystal clear mix, professional mastering, wide dynamic range, rich spatial reverb, detailed soundstage";
-
-        private static bool FastContains(string source, string value)
-        {
-            if (string.IsNullOrEmpty(source)) return false;
-            return source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        public static async Task<List<Skill>> SelectSkillsAsync(string text)
-        {
-            return await Task.Run(() =>
-            {
-                if (string.IsNullOrEmpty(text)) return new List<Skill>();
-                return Skills.Select(s => new { Skill = s, Score = s.Keywords.Count(kw => FastContains(text, kw)) })
-                             .Where(x => x.Score > 0)
-                             .OrderByDescending(x => x.Score)
-                             .Take(3)
-                             .Select(x => x.Skill)
-                             .ToList();
-            });
-        }
 
         public static async Task<PromptResult> GenerateAsync(string text, ModelType model = ModelType.Standard)
         {
-            var activeSkills = await SelectSkillsAsync(text);
+            string cleanText = string.IsNullOrWhiteSpace(text) ? "Ambient soundscape" : text.Trim();
+            var activeSkills = CurrentSkills.Select(s => new { Skill = s, Score = s.Keywords.Count(kw => cleanText.Contains(kw, StringComparison.OrdinalIgnoreCase)) })
+                                           .Where(x => x.Score > 0).OrderByDescending(x => x.Score).Take(3).Select(x => x.Skill).ToList();
             
             return await Task.Run(() =>
             {
-                string styleKey = "Chill";
-                if (activeSkills.Any(s => s.Id == 1 || s.Id == 6)) styleKey = "Epic";
-                else if (activeSkills.Any(s => s.Id == 3)) styleKey = "Cyber";
-                else if (activeSkills.Any(s => s.Id == 4)) styleKey = "Emotional";
-                else if (activeSkills.Any(s => s.Id == 7)) styleKey = "Organic";
+                string styleKey = activeSkills.Any(s => s.Id == 1) ? "Epic" : activeSkills.Any(s => s.Id == 3) ? "Cyber" : activeSkills.Any(s => s.Id == 4) ? "Emotional" : "Chill";
+                string GetSafe(Dictionary<string, string[]> d, string k) => d.ContainsKey(k) ? d[k][Rnd.Next(d[k].Length)] : d["Chill"][Rnd.Next(d["Chill"].Length)];
 
-                // KeyNotFound 対策
-                string GetSafeRandom(Dictionary<string, string[]> dict, string key, string defaultKey = "Chill")
-                {
-                    if (dict.ContainsKey(key)) return GetRandom(dict[key]);
-                    return GetRandom(dict[defaultKey]);
-                }
-
-                string mainInst = GetSafeRandom(MainInstruments, styleKey);
-                string subInst = GetSafeRandom(SubInstruments, styleKey);
-                
-                string genre = styleKey == "Epic" ? "Epic cinematic orchestral" : 
-                               styleKey == "Cyber" ? "Cyberpunk synthwave" : 
-                               styleKey == "Chill" ? "Chill lo-fi hip hop" : "Ambient soundscape";
-
-                string mood = string.IsNullOrWhiteSpace(text) ? "peaceful and atmospheric" : text;
-                string keyName = styleKey == "Epic" || styleKey == "Cyber" ? "D minor" : "C major";
-                int bpm = styleKey == "Epic" ? 142 : styleKey == "Cyber" ? 128 : 85;
-
-                string fullPrompt = "";
-                string structure = "";
-
-                if (model == ModelType.HeartMuLa)
-                {
-                    structure = "[Intro] → [Verse] → [Chorus] → [Bridge] → [Outro]";
-                    fullPrompt = $"[Genre: {genre}], [Mood: {mood}], [Key: {keyName}], [BPM: {bpm}]\n" +
-                                 $"[Intro]: Atmospheric {subInst} build-up\n" +
-                                 $"[Verse]: Emotional {mainInst} progression with subtle {subInst}\n" +
-                                 $"[Chorus]: Powerful {mainInst} melody with full {subInst} layer\n" +
-                                 $"[Outro]: Fading {mainInst} with {subInst} echoes" +
-                                 $"{QualityTags}, HeartCodec optimized";
-                }
-                else if (model == ModelType.ACEStep)
-                {
-                    structure = "Compact linear progression (loopable)";
-                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {mood}, {keyName}, {bpm} BPM, consistent melody, harmonious rhythm, high temporal coherence{QualityTags}, ACE-Step optimized";
-                }
-                else
-                {
-                    structure = "intro → main theme → drop → outro, seamless loopable";
-                    fullPrompt = $"{genre}, {mainInst}, {subInst}, {structure}, {mood}, {keyName}, {bpm} BPM{QualityTags}";
-                }
-
-                string lyrics = string.Join("\n", Enumerable.Range(0, 4).Select(_ => GetSafeRandom(LyricsDatabase, styleKey)));
-                string artPrompt = $"{GetSafeRandom(VisualDatabase, styleKey)}, extremely detailed, professional photography, 8k, masterpiece, cinematic lighting, moody atmosphere, sharp focus";
+                string mainInst = GetSafe(MainInstruments, styleKey);
+                string genre = styleKey == "Epic" ? "Cinematic" : styleKey == "Cyber" ? "Synthwave" : "Lo-Fi";
+                int bpm = styleKey == "Epic" ? 140 : 80;
 
                 return new PromptResult
                 {
-                    FullPrompt = fullPrompt,
-                    Lyrics = lyrics,
-                    ArtPrompt = artPrompt,
-                    Bpm = bpm,
-                    Key = keyName,
-                    Structure = structure,
-                    ActiveSkills = activeSkills,
-                    UserInput = text,
-                    TargetModel = model
+                    FullPrompt = $"{genre}, {mainInst}, {cleanText}, {bpm} BPM, high quality",
+                    Lyrics = string.Join("\n", Enumerable.Range(0, 2).Select(_ => GetSafe(LyricsDatabase, styleKey))),
+                    ArtPrompt = $"{genre} landscape, cinematic lighting",
+                    Bpm = bpm, Key = "C", Structure = "Standard", ActiveSkills = activeSkills, UserInput = cleanText, TargetModel = model
                 };
             });
         }
 
-        private static string GetRandom(string[] array) => array[Rnd.Next(array.Length)];
-
         public static string GenerateReport(PromptResult result, bool isEnglish = false)
         {
-            string softName = isEnglish ? "ForgeBGM v2.0 (Total Produce)" : "ForgeBGM v2.0 (トータルプロデュース版)";
-            string modelName = result.TargetModel.ToString();
-            
-            return $"[ForgeBGM Generation Report]\n" +
-                   $"Software: {softName}\n" +
-                   $"Target Model: {modelName}\n" +
-                   $"Date: {result.Timestamp:yyyy-MM-dd HH:mm:ss}\n" +
-                   $"Prompt Used: {result.FullPrompt}\n" +
-                   $"Selected BPM: {result.Bpm}\n" +
-                   $"Key: {result.Key}\n" +
-                   $"Structure: {result.Structure}\n" +
-                   $"Seed: {Rnd.Next(100000000, 999999999)}\n" +
-                   $"Duration: 3:15 (Estimated)";
+            return $"[ForgeBGM v3.0 Report]\nModel: {result.TargetModel}\nBPM: {result.Bpm}\nPrompt: {result.FullPrompt}";
         }
     }
 }

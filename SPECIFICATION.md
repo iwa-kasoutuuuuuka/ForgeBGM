@@ -1,9 +1,9 @@
-# ForgeBGM ソフトウェア仕様書 / Software Specification (v2.0)
+# ForgeBGM ソフトウェア仕様書 / Software Specification (v3.0 GOLD)
 
 ## 1. 概要 / Overview
-ForgeBGMは、AI音楽生成のためのトータルプロデュース・アシスタントです。v2.0では、プロンプト構築に加え、ローカル環境でのAI推論による音楽生成・再生機能を統合しました。
+ForgeBGMは、AI音楽生成のためのトータルプロデュース・アシスタントです。v3.0では、リソース管理の最適化と、ポータブルビルドによる配布の容易性を実現しました。
 
-ForgeBGM is a total produce assistant for AI music generation. v2.0 integrates prompt construction along with local AI inference for music generation and playback.
+ForgeBGM is a total produce assistant for AI music generation. v3.0 realizes optimized resource management and ease of distribution via portable builds.
 
 ## 2. システム構成 / System Architecture
 *   **プラットフォーム / Platform**: Windows 10/11 (Native)

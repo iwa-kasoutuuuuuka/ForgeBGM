@@ -1,4 +1,4 @@
-# ForgeBGM 取扱説明書 / Instruction Manual (v2.0)
+# ForgeBGM 取扱説明書 / Instruction Manual (v3.0 GOLD)
 
 ## 1. 基本操作 / Basic Operations
 1.  **インプット**: イメージを入力し、ターゲットモデル（Standard/HeartMuLa/ACE-Step）を選択します。
@@ -23,7 +23,7 @@
 
 ## 5. 設定とトラブルシューティング / Troubleshooting
 *   **GPUエラー**: グラフィックボードのドライバが最新であることを確認してください。 / Ensure your GPU drivers are up to date.
-*   **再生されない**: 音量設定やオーディオデバイスの接続を確認してください。 / Check volume and audio device connections.
+*   **起動しない**: 以前のバージョンで発生していた起動時エラーは、リソース管理の最適化により修正されました。 / Startup errors in previous versions have been resolved.
 
 ---
-ForgeBGM v2.0 - The Forge Edition
+ForgeBGM v3.0 GOLD - The Premium Forge Edition

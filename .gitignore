@@ -3,6 +3,9 @@
 # Build artifacts
 bin/
 obj/
+PortableBuild/
+Publish/
+Releases/
 
 # Visual Studio
 .vs/
@@ -14,6 +17,13 @@ obj/
 # .NET
 *.csproj.user
 *.publish.xml
+
+# Node.js (Web files)
+node_modules/
+
+# Local Configs & Logs
+skills.json
+*.log
 
 # Operating System
 Thumbs.db
